@@ -14,6 +14,7 @@ describe.skip('Refresh Token (e2e)', () => {
     await request(app.server).post('/users').send({
       name: 'John Doe',
       email: 'johndoe@example.com',
+      phone: '(67) 9 9199-7210',
       password: '123456',
     });
 
