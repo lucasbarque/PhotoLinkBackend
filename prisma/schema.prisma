@@ -16,13 +16,17 @@ enum Role {
 }
 
 model User {
-  id            String   @id @default(uuid())
+  id            String @id @default(uuid())
   name          String
-  email         String   @unique
+  email         String @unique
   phone         String
   password_hash String
-  role          Role     @default(MEMBER)
-  created_at    DateTime @default(now())
+  role          Role   @default(MEMBER)
+
+  reset_password_token      String?
+  reset_password_expiration DateTime?
+
+  created_at DateTime @default(now())
 
   @@map("users")
 }

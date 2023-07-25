@@ -1,5 +1,9 @@
 import { prisma } from '@/lib/prisma';
-import { UsersRepository } from '../users-repository';
+import { Role } from '@prisma/client';
+import { GetResult } from '@prisma/client/runtime/library';
+
+import { UsersRepository } from '@/repositories/users-repository';
+
 import { IUser } from '@/interfaces/IUser';
 
 export class PrismaUsersRepository implements UsersRepository {
@@ -34,5 +38,9 @@ export class PrismaUsersRepository implements UsersRepository {
     });
 
     return user;
+  }
+
+  async update(id: string, data: IUser.DTOs.Edit) {
+    return await prisma.user.update({ data, where: { id } });
   }
 }

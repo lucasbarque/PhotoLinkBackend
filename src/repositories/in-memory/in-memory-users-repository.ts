@@ -1,5 +1,9 @@
-import { UsersRepository } from '../users-repository';
+import { Role } from '@prisma/client';
+import { GetResult } from '@prisma/client/runtime/library';
 import { randomUUID } from 'node:crypto';
+
+import { UsersRepository } from '@/repositories/users-repository';
+
 import { IUser } from '@/interfaces/IUser';
 
 export class InMemoryUsersRepository implements UsersRepository {
@@ -33,5 +37,18 @@ export class InMemoryUsersRepository implements UsersRepository {
     };
     this.items.push(user);
     return user;
+  }
+
+  async update(id: string, data: IUser.DTOs.Edit) {
+    const userIndex = this.items.findIndex((item) => item.id === id);
+
+    if (userIndex === -1) {
+      return null;
+    }
+
+    const updatedUser = Object.assign({}, this.items[userIndex], data);
+    this.items[userIndex] = updatedUser;
+
+    return updatedUser;
   }
 }

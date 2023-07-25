@@ -6,6 +6,12 @@ const envSchema = z.object({
   ALLOWED_ORIGINS: z.string().default('http://localhost:5173'),
   JWT_SECRET: z.string(),
   PORT: z.coerce.number().default(3333),
+  SMTP_HOST: z.string(),
+  SMTP_PORT: z.coerce.number(),
+  SMTP_USER: z.string(),
+  SMTP_PASS: z.string(),
+  URL_FRONTEND: z.string(),
+  ACTIVE_SEND_EMAILS: z.coerce.boolean().default(false),
 });
 
 const _env = envSchema.safeParse(process.env);

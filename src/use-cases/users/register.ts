@@ -6,19 +6,10 @@ import { IUser } from '@/interfaces/IUser';
 
 import { ResourceAlreadyExistsError } from '@/errors/resource-already-exists-error';
 
-interface RegisterUseCaseResponse {
-  user: IUser.Entity;
-}
-
 export class RegisterUseCase {
   constructor(private usersRepository: UsersRepository) {}
 
-  async execute({
-    name,
-    email,
-    phone,
-    password,
-  }: IUser.DTOs.Create): Promise<RegisterUseCaseResponse> {
+  async execute({ name, email, phone, password }: IUser.DTOs.Create) {
     const password_hash = await hash(password, 6);
 
     const userWithSameEmail = await this.usersRepository.findByEmail(email);
