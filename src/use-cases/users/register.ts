@@ -1,16 +1,15 @@
-import { hash } from 'bcryptjs';
-
 import { UsersRepository } from '@/repositories/users-repository';
 
 import { IUser } from '@/interfaces/IUser';
 
 import { ResourceAlreadyExistsError } from '@/errors/resource-already-exists-error';
+import PasswordHash from '@/infra/utils/PasswordHash';
 
 export class RegisterUseCase {
   constructor(private usersRepository: UsersRepository) {}
 
   async execute({ name, email, phone, password }: IUser.DTOs.Create) {
-    const password_hash = await hash(password, 6);
+    const password_hash = await PasswordHash.hash(password);
 
     const userWithSameEmail = await this.usersRepository.findByEmail(email);
 

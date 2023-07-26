@@ -1,4 +1,3 @@
-import { hash } from 'bcryptjs';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
@@ -6,6 +5,7 @@ import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-user
 import { ResourceNotFoundError } from '@/errors/resource-not-found-error';
 
 import { GetResetPasswordTokenUseCase } from './get-reset-password-token';
+import PasswordHash from '@/infra/utils/PasswordHash';
 
 let usersRepository: InMemoryUsersRepository;
 let sut: GetResetPasswordTokenUseCase;
@@ -21,7 +21,7 @@ describe('Get Reset Password Token Use Case', () => {
       name: 'John Doe',
       email: 'johndoe@example.com',
       phone: '(67) 9 9199-7210',
-      password: await hash('123456', 6),
+      password: await PasswordHash.hash('123456'),
     });
 
     const response = await sut.execute({ email: createdUser.email });
