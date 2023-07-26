@@ -1,5 +1,5 @@
+import PasswordHash from '@/infra/utils/PasswordHash';
 import { prisma } from '@/lib/prisma';
-import { hash } from 'bcryptjs';
 import { FastifyInstance } from 'fastify';
 import request from 'supertest';
 
@@ -12,7 +12,7 @@ export async function createAndAuthenticateUser(
       name: 'John Doe',
       phone: '(67) 9 9199-7210',
       email: 'johndoe@example.com',
-      password_hash: await hash('123456', 6),
+      password_hash: await PasswordHash.hash('123456'),
       role: isAdmin ? 'ADMIN' : 'MEMBER',
     },
   });

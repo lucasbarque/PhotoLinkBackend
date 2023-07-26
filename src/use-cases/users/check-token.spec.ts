@@ -4,9 +4,9 @@ import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-user
 
 import { CheckTokenUseCase } from './check-token';
 import { GetResetPasswordTokenUseCase } from './get-reset-password-token';
-import { hash } from 'bcryptjs';
 import { ResourceNotFoundError } from '@/errors/resource-not-found-error';
 import { TokenExpiratedError } from '@/errors/token-expirated';
+import PasswordHash from '@/infra/utils/PasswordHash';
 
 let usersRepository: InMemoryUsersRepository;
 let getResetPasswordUseCase: GetResetPasswordTokenUseCase;
@@ -26,7 +26,7 @@ describe('Check Token Use Case', () => {
       name: 'John Doe',
       email: 'johndoe@example.com',
       phone: '(67) 9 9199-7210',
-      password: await hash('123456', 6),
+      password: await PasswordHash.hash('123456'),
     });
 
     const { token } = await getResetPasswordUseCase.execute({
@@ -51,7 +51,7 @@ describe('Check Token Use Case', () => {
       name: 'John Doe',
       email: 'johndoe@example.com',
       phone: '(67) 9 9199-7210',
-      password: await hash('123456', 6),
+      password: await PasswordHash.hash('123456'),
     });
 
     vi.setSystemTime(new Date(2023, 0, 1, 8, 0));
