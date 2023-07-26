@@ -3,26 +3,26 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
 
 import { GetResetPasswordTokenUseCase } from './get-reset-password-token';
-import { ChangeForgotPasswordUseCase } from './change-forgot-password';
 import { ResourceNotFoundError } from '@/errors/resource-not-found-error';
 import { TokenExpiratedError } from '@/errors/token-expirated';
 import { CheckTokenUseCase } from './check-token';
 import PasswordHash from '@/infra/utils/PasswordHash';
 import { compare } from 'bcryptjs';
+import { ForgotPasswordChangeUseCase } from './forgot-password-change';
 
 let usersRepository: InMemoryUsersRepository;
 let checkTokenUseCase: CheckTokenUseCase;
 let getResetPasswordTokenUseCase: GetResetPasswordTokenUseCase;
-let sut: ChangeForgotPasswordUseCase;
+let sut: ForgotPasswordChangeUseCase;
 
-describe('Change Forgot Password Use Case', () => {
+describe('Forgot Password Change Use Case', () => {
   beforeEach(() => {
     usersRepository = new InMemoryUsersRepository();
     getResetPasswordTokenUseCase = new GetResetPasswordTokenUseCase(
       usersRepository
     );
     checkTokenUseCase = new CheckTokenUseCase(usersRepository);
-    sut = new ChangeForgotPasswordUseCase(usersRepository, checkTokenUseCase);
+    sut = new ForgotPasswordChangeUseCase(usersRepository, checkTokenUseCase);
     vi.useFakeTimers();
   });
 

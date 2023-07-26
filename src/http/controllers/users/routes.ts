@@ -6,6 +6,7 @@ import { verifyJWT } from '@/http/middlewares/verify-jwt';
 import { profile } from './profile';
 import { resetPasswordToken } from './reset-password-token';
 import { checkToken } from './check-token';
+import { forgotPasswordChange } from './forgot-password-change';
 
 export async function usersRoutes(app: FastifyInstance) {
   // Public routes
@@ -13,6 +14,7 @@ export async function usersRoutes(app: FastifyInstance) {
   app.post('/sessions', authenticate);
   app.patch('/token/refresh', refresh);
   app.post('/forgot-password/token', resetPasswordToken);
+  app.post('/forgot-password/change', forgotPasswordChange);
   app.post('/check-token', checkToken);
 
   app.get('/me', { onRequest: [verifyJWT] }, profile);

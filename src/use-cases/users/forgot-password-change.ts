@@ -2,18 +2,18 @@ import { UsersRepository } from '@/repositories/users-repository';
 import { CheckTokenUseCase } from './check-token';
 import PasswordHash from '@/infra/utils/PasswordHash';
 
-interface ChangeForgotPasswordUseCaseRequest {
+interface ForgotPasswordChangeUseCaseRequest {
   token: string;
   password: string;
 }
 
-export class ChangeForgotPasswordUseCase {
+export class ForgotPasswordChangeUseCase {
   constructor(
     private usersRepository: UsersRepository,
     private checkTokenUseCase: CheckTokenUseCase
   ) {}
 
-  async execute({ token, password }: ChangeForgotPasswordUseCaseRequest) {
+  async execute({ token, password }: ForgotPasswordChangeUseCaseRequest) {
     await this.checkTokenUseCase.execute({ token });
 
     const user = await this.usersRepository.findByToken(token);
