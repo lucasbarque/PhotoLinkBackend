@@ -14,14 +14,14 @@ describe('Reset Password Token (e2e)', () => {
   it('should be able to send a password token by email', async () => {
     process.env.ACTIVE_SEND_EMAILS = 'false';
 
-    await request(app.server).post('/users').send({
+    await request(app.server).post('/users/create').send({
       name: 'John Doe',
       email: 'johndoe@example.com',
       phone: '(67) 9 9199-7210',
       password: '123456',
     });
 
-    await request(app.server).post('/forgot-password/token').send({
+    await request(app.server).post('/users/forgot-password/get-token').send({
       email: 'johndoe@example.com',
     });
 

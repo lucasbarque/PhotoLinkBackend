@@ -11,21 +11,23 @@ describe('Refresh Token (e2e)', () => {
   });
 
   it('should be able to refresh a token', async () => {
-    await request(app.server).post('/users').send({
+    await request(app.server).post('/users/create').send({
       name: 'John Doe',
       email: 'johndoe@example.com',
       phone: '(67) 9 9199-7210',
       password: '123456',
     });
 
-    const authResponse = await request(app.server).post('/sessions').send({
-      email: 'johndoe@example.com',
-      password: '123456',
-    });
+    const authResponse = await request(app.server)
+      .post('/sessions/login')
+      .send({
+        email: 'johndoe@example.com',
+        password: '123456',
+      });
 
     const cookies = authResponse.get('Set-Cookie');
     const response = await request(app.server)
-      .patch('/token/refresh')
+      .patch('/sessions/refresh-token')
       .set('Cookie', cookies)
       .send();
 

@@ -1,4 +1,4 @@
-import { GetUserProfileUseCase } from '@/use-cases/users/get-user-profile';
+import { GetUserProfileUseCase } from '@/use-cases/sessions/get-user-profile';
 
 import { PrismaUsersRepository } from '@/repositories/prisma/prisma-users-repository';
 
