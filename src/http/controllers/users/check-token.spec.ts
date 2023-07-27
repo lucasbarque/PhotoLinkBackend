@@ -13,14 +13,14 @@ describe('Check Token (e2e)', () => {
   });
 
   it('should be able to check a valid token', async () => {
-    await request(app.server).post('/users').send({
+    await request(app.server).post('/users/create').send({
       name: 'John Doe',
       email: 'johndoe@example.com',
       phone: '(67) 9 9199-7210',
       password: '123456',
     });
 
-    await request(app.server).post('/forgot-password/token').send({
+    await request(app.server).post('/users/forgot-password/get-token').send({
       email: 'johndoe@example.com',
     });
 
@@ -30,23 +30,27 @@ describe('Check Token (e2e)', () => {
       },
     });
 
-    const validateToken = await request(app.server).post('/check-token').send({
-      token: user.reset_password_token,
-    });
+    const validateToken = await request(app.server)
+      .post('/users/forgot-password/check-token')
+      .send({
+        token: user.reset_password_token,
+      });
 
     expect(validateToken.statusCode).toEqual(200);
   });
 
   it('should not be able to check an invalid token', async () => {
-    const validateToken = await request(app.server).post('/check-token').send({
-      token: 'invalid-token',
-    });
+    const validateToken = await request(app.server)
+      .post('/users/forgot-password/check-token')
+      .send({
+        token: 'invalid-token',
+      });
 
     expect(validateToken.statusCode).toEqual(403);
   });
 
   it('should not be able to check a token expired', async () => {
-    await request(app.server).post('/users').send({
+    await request(app.server).post('/users/create').send({
       name: 'John Doe',
       email: 'johndoe@example.com',
       phone: '(67) 9 9199-7210',
@@ -55,7 +59,7 @@ describe('Check Token (e2e)', () => {
 
     vi.setSystemTime(new Date(2023, 0, 1, 8, 0));
 
-    await request(app.server).post('/forgot-password/token').send({
+    await request(app.server).post('/users/forgot-password/get-token').send({
       email: 'johndoe@example.com',
     });
 
@@ -67,9 +71,11 @@ describe('Check Token (e2e)', () => {
 
     vi.setSystemTime(new Date(2023, 0, 3, 8, 0));
 
-    const validateToken = await request(app.server).post('/check-token').send({
-      token: user.reset_password_token,
-    });
+    const validateToken = await request(app.server)
+      .post('/users/forgot-password/check-token')
+      .send({
+        token: user.reset_password_token,
+      });
 
     expect(validateToken.statusCode).toEqual(406);
   });

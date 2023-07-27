@@ -14,14 +14,14 @@ describe('Forgot Password Change (e2e)', () => {
   });
 
   it('should be able to change a password with a valid token', async () => {
-    await request(app.server).post('/users').send({
+    await request(app.server).post('/users/create').send({
       name: 'John Doe',
       email: 'johndoe@example.com',
       phone: '(67) 9 9199-7210',
       password: '123456',
     });
 
-    await request(app.server).post('/forgot-password/token').send({
+    await request(app.server).post('/users/forgot-password/get-token').send({
       email: 'johndoe@example.com',
     });
 
@@ -32,7 +32,7 @@ describe('Forgot Password Change (e2e)', () => {
     });
 
     const validateToken = await request(app.server)
-      .post('/forgot-password/change')
+      .post('/users/forgot-password/change')
       .send({
         token: user.reset_password_token,
         password: '1234567',
@@ -55,7 +55,7 @@ describe('Forgot Password Change (e2e)', () => {
 
   it('should not be able to check an invalid token', async () => {
     const validateToken = await request(app.server)
-      .post('/forgot-password/change')
+      .post('/users/forgot-password/change')
       .send({
         token: 'invalid-token',
         password: '1234567',
@@ -65,7 +65,7 @@ describe('Forgot Password Change (e2e)', () => {
   });
 
   it('should not be able to check a token expired', async () => {
-    await request(app.server).post('/users').send({
+    await request(app.server).post('/users/create').send({
       name: 'John Doe',
       email: 'johndoe@example.com',
       phone: '(67) 9 9199-7210',
@@ -74,7 +74,7 @@ describe('Forgot Password Change (e2e)', () => {
 
     vi.setSystemTime(new Date(2023, 0, 1, 8, 0));
 
-    await request(app.server).post('/forgot-password/token').send({
+    await request(app.server).post('/users/forgot-password/get-token').send({
       email: 'johndoe@example.com',
     });
 
@@ -87,7 +87,7 @@ describe('Forgot Password Change (e2e)', () => {
     vi.setSystemTime(new Date(2023, 0, 3, 8, 0));
 
     const validateToken = await request(app.server)
-      .post('/forgot-password/change')
+      .post('/users/forgot-password/change')
       .send({
         token: user.reset_password_token,
         password: '1234567',

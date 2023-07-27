@@ -4,11 +4,17 @@ export namespace IUser {
     MEMBER = 'MEMBER',
   }
 
+  export interface AvatarData {
+    id: string;
+    filename: string;
+  }
+
   export interface Entity {
     id: string;
     name: string;
     email: string;
     phone: string;
+    avatar_data?: AvatarData;
     password_hash: string;
     reset_password_token?: string;
     reset_password_expiration?: Date;
@@ -34,6 +40,7 @@ export namespace IUser {
       name?: string;
       email?: string;
       phone?: string;
+      avatar_url?: string;
       password_hash?: string;
       reset_password_token?: string | null;
       reset_password_expiration?: Date | null;
