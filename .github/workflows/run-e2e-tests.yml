@@ -9,13 +9,14 @@ jobs:
 
     services:
       postgres:
-        image: bitnami/postgresql
+        image: postgres:14
         ports:
           - 5434:5432
         env:
-          POSTGRESQL_USERNAME: ignitegym-user
-          POSTGRESQL_PASSWORD: ignitegym-password
-          POSTGRESQL_DATABASE: ignitegym
+          DATABASE_HOST: localhost
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 12345678
+          POSTGRES_DB: photolink
 
     steps:
       - uses: actions/checkout@v3
@@ -23,11 +24,16 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-          cache: "npm"
+          cache: 'npm'
 
       - run: npm ci
 
       - run: npm run test:e2e
         env:
           JWT_SECRET: testing
-          DATABASE_URL: "postgresql://ignitegym-user:ignitegym-password@localhost:5434/ignitegym?schema=public"
+          DATABASE_URL: 'postgresql://postgres:12345678@localhost:5434/photolink?schema=public'
+          SMTP_HOST: testing
+          SMTP_PORT: 587
+          SMTP_USER: testing
+          SMTP_PASS: testing
+          URL_FRONTEND: http://testing.com

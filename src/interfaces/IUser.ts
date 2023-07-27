@@ -34,8 +34,9 @@ export namespace IUser {
       name?: string;
       email?: string;
       phone?: string;
-      reset_password_token?: string;
-      reset_password_expiration?: Date;
+      password_hash?: string;
+      reset_password_token?: string | null;
+      reset_password_expiration?: Date | null;
     };
   }
 }

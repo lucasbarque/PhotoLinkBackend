@@ -1,6 +1,4 @@
 import { prisma } from '@/lib/prisma';
-import { Role } from '@prisma/client';
-import { GetResult } from '@prisma/client/runtime/library';
 
 import { UsersRepository } from '@/repositories/users-repository';
 
@@ -25,6 +23,14 @@ export class PrismaUsersRepository implements UsersRepository {
     });
 
     return user;
+  }
+
+  async findByToken(token: string) {
+    return await prisma.user.findFirst({
+      where: {
+        reset_password_token: token,
+      },
+    });
   }
 
   async create(data: IUser.DTOs.Create) {

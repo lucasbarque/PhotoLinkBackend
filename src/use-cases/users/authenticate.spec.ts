@@ -1,4 +1,3 @@
-import { hash } from 'bcryptjs';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
@@ -6,6 +5,7 @@ import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-user
 import { InvalidCredentialsError } from '@/errors/invalid-credentials-error';
 
 import { AuthenticateUseCase } from './authenticate';
+import PasswordHash from '@/infra/utils/PasswordHash';
 
 let usersRepository: InMemoryUsersRepository;
 let sut: AuthenticateUseCase;
@@ -21,7 +21,7 @@ describe('Authenticate Use Case', () => {
       name: 'John Doe',
       email: 'johndoe@example.com',
       phone: '(67) 9 9199-7210',
-      password: await hash('123456', 6),
+      password: await PasswordHash.hash('123456'),
     });
 
     const { user } = await sut.execute({

@@ -25,6 +25,14 @@ export class InMemoryUsersRepository implements UsersRepository {
     return user;
   }
 
+  async findByToken(token: string) {
+    const user = this.items.find((item) => item.reset_password_token === token);
+    if (!user) {
+      return null;
+    }
+    return user;
+  }
+
   async create(data: IUser.DTOs.Create) {
     const user = {
       id: randomUUID(),
