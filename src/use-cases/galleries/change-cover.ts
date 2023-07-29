@@ -1,39 +1,38 @@
-import { UsersRepository } from '@/repositories/users-repository';
-
 import { ResourceNotFoundError } from '@/errors/resource-not-found-error';
 
 import { randomUUID } from 'node:crypto';
 import { env } from '@/env';
-import { IUser } from '@/interfaces/IUser';
-import sharp from 'sharp';
 import GoogleDriveService from '@/infra/services/GoogleDrive';
+import { GalleriesRepository } from '@/repositories/galleries-repository';
+import { IGallery } from '@/interfaces/IGallery';
+import sharp from 'sharp';
 
 interface ChangeAvatarUseCaseRequest {
   id: string;
-  avatar: any;
+  cover: any;
 }
 
-export class ChangeAvatarUseCase {
-  constructor(private usersRepository: UsersRepository) {}
+export class ChangeCoverUseCase {
+  constructor(private galleriesRepository: GalleriesRepository) {}
 
-  async execute({ id, avatar }: ChangeAvatarUseCaseRequest) {
-    const user = await this.usersRepository.findById(id);
+  async execute({ id, cover }: ChangeAvatarUseCaseRequest) {
+    const gallery = await this.galleriesRepository.findById(id);
 
-    if (!user) {
+    if (!gallery) {
       throw new ResourceNotFoundError();
     }
 
-    const avatarData = (user.avatar_data as IUser.AvatarData) ?? null;
-    const file = await sharp(await avatar.toBuffer()).resize(80, 80);
+    const photosData = (gallery.photos_data as IGallery.PhotosData) ?? null;
+    const file = await sharp(await cover.toBuffer());
 
     try {
       const googleDriveService = new GoogleDriveService();
       const googleDriveClient = await googleDriveService.getDriveClient();
 
-      if (avatarData) {
+      if (photosData?.cover?.id) {
         await googleDriveClient.files
           .get({
-            fileId: avatarData.id,
+            fileId: photosData.cover.id,
           })
           .then(async ({ data }) => {
             await googleDriveClient.files.delete({
@@ -46,11 +45,11 @@ export class ChangeAvatarUseCase {
 
       const fileMetadata = {
         name: filename,
-        parents: [env.GOOGLE_USERS_FOLDER],
+        parents: [env.GOOGLE_GALLERIES_COVER_FOLDER],
       };
 
       const media = {
-        mimeType: avatar.mimetype,
+        mimeType: cover.mimetype,
         body: file,
       };
 
@@ -61,14 +60,19 @@ export class ChangeAvatarUseCase {
         field: 'id',
       });
 
-      await this.usersRepository.update(id, {
+      const galleryUpdated = await this.galleriesRepository.update(id, {
         // @ts-ignore
-        avatar_data: { id: response.data.id, filename },
+        photos_data: {
+          cover: {
+            // @ts-ignore
+            id: response.data.id,
+            filename,
+          },
+        },
       });
-    } catch (error) {
-      console.log(error);
+      return { gallery: galleryUpdated };
+    } catch (error: any) {
+      throw new Error(error);
     }
-
-    return {};
   }
 }
