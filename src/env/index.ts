@@ -14,6 +14,7 @@ const envSchema = z.object({
   ACTIVE_SEND_EMAILS: z.coerce.boolean().default(false),
   GOOGLE_USERS_FOLDER: z.string(),
   GOOGLE_GALLERIES_FOLDER: z.string(),
+  GOOGLE_GALLERIES_COVER_FOLDER: z.string(),
 });
 
 const _env = envSchema.safeParse(process.env);

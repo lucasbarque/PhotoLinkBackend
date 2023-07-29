@@ -29,5 +29,28 @@ model User {
 
   created_at DateTime @default(now())
 
+  galleries Gallery[]
+
   @@map("users")
+}
+
+enum GalleryStatus {
+  DRAFT
+  PUBLISHED
+}
+
+model Gallery {
+  id           String        @id @default(uuid())
+  title        String
+  status       GalleryStatus @default(DRAFT)
+  slug         String?       @unique
+  photos_data  Json?
+  photos_count Int           @default(0)
+
+  user_id String
+  user    User   @relation(fields: [user_id], references: [id])
+
+  created_at DateTime @default(now())
+
+  @@map("galleries")
 }
