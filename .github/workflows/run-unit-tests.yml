@@ -26,3 +26,6 @@ jobs:
           SMTP_USER: testing
           SMTP_PASS: testing
           URL_FRONTEND: http://testing.com
+          GOOGLE_USERS_FOLDER: testing
+          GOOGLE_GALLERIES_FOLDER: testing
+          GOOGLE_GALLERIES_COVER_FOLDER: testing
