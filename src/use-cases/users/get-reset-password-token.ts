@@ -36,7 +36,9 @@ export class GetResetPasswordTokenUseCase {
       })
     );
 
-    if (env.ACTIVE_SEND_EMAILS) {
+    const testingEmails = ['user-test@photolink.com.br']
+
+    if (env.ACTIVE_SEND_EMAILS && !testingEmails.includes(user.email)) {
       mailer.sendMail({
         from: 'contato@photolink.com.br',
         to: user.email,
