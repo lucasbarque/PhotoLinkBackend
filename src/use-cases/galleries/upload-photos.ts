@@ -1,12 +1,15 @@
 import { env } from '@/env';
-import { ResourceNotFoundError } from '@/errors/resource-not-found-error';
 import GoogleDriveService from '@/infra/services/GoogleDrive';
-import { GalleriesRepository } from '@/repositories/galleries-repository';
 import { randomUUID } from 'crypto';
 import sharp from 'sharp';
 
+import { GalleriesRepository } from '@/repositories/galleries-repository';
+
+import { ResourceNotFoundError } from '@/errors/resource-not-found-error';
+
 interface UploadPhotosUseCaseUseCaseRequest {
   galleryId: string;
+  socketId: string;
   photos: any;
 }
 
@@ -38,27 +41,31 @@ export class UploadPhotosUseCase {
     console.log(response);
   }
 
-  async execute({ galleryId, photos }: UploadPhotosUseCaseUseCaseRequest) {
+  async execute({
+    galleryId,
+    photos,
+    socketId,
+  }: UploadPhotosUseCaseUseCaseRequest) {
     const gallery = await this.galleriesRepository.findById(galleryId);
 
     if (!gallery) {
       throw new ResourceNotFoundError();
     }
 
-    try {
-      const googleDriveService = new GoogleDriveService();
-      const googleDriveClient = await googleDriveService.getDriveClient();
+    // try {
+    //   const googleDriveService = new GoogleDriveService();
+    //   const googleDriveClient = await googleDriveService.getDriveClient();
 
-      const uploadPromises: Promise<void>[] = [];
+    //   const uploadPromises: Promise<void>[] = [];
 
-      for await (const file of photos) {
-        const uploadPromise = this.uploadFile(googleDriveClient, file);
-        uploadPromises.push(uploadPromise);
-      }
-      await Promise.all(uploadPromises);
-    } catch (error) {
-      console.log(error);
-    }
+    //   for await (const file of photos) {
+    //     const uploadPromise = this.uploadFile(googleDriveClient, file);
+    //     uploadPromises.push(uploadPromise);
+    //   }
+    //   await Promise.all(uploadPromises);
+    // } catch (error) {
+    //   console.log(error);
+    // }
     return { gallery: null };
   }
 }

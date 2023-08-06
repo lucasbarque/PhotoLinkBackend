@@ -3,18 +3,28 @@ import cors from '@fastify/cors';
 import fastifyJwt from '@fastify/jwt';
 import fastifyMultipart from '@fastify/multipart';
 import fastify from 'fastify';
+import socketIO from 'fastify-socket.io';
 import { ZodError } from 'zod';
 
 import { env } from './env';
-import { usersRoutes } from './http/controllers/users/routes';
-import { sessionsRoutes } from './http/controllers/sessions/routes';
 import { galleriesRoutes } from './http/controllers/galleries/routes';
+import { sessionsRoutes } from './http/controllers/sessions/routes';
+import { usersRoutes } from './http/controllers/users/routes';
+import { logger } from './utils';
 
 export const app = fastify();
 
+app.register(socketIO, {
+  cors: {
+    origin: '*',
+    credentials: false,
+  },
+});
+
 app.register(fastifyMultipart, {
+  attachFieldsToBody: true,
   limits: {
-    fileSize: 50 * 1024 * 1024, // 50mb
+    fileSize: 50 * 1024 * 1024, // 50mb,
   },
 });
 
@@ -47,4 +57,10 @@ app.setErrorHandler((error, _, reply) => {
     console.error(error);
   }
   return reply.status(500).send({ message: 'Internal server error.' });
+});
+
+app.ready(() => {
+  app.io.on('connection', (socket) =>
+    logger.info('someone connected ' + socket.id)
+  );
 });
