@@ -22,9 +22,10 @@ app.register(socketIO, {
 });
 
 app.register(fastifyMultipart, {
-  attachFieldsToBody: true,
+  // attachFieldsToBody: true,
   limits: {
-    fileSize: 50 * 1024 * 1024, // 50mb,
+    // fileSize: 50 * 1024 * 1024, // 50mb,
+    fileSize: 1024 * 1024 * 1024 * 1024 * 1024, // 50mb,
   },
 });
 

@@ -1,10 +1,16 @@
+import { app } from '@/app';
+import GoogleDriveService from '@/infra/services/GoogleDrive';
 import UploadHandler from '@/infra/utils/UploadHandler';
-import { makeChangeAvatarUseCase } from '@/use-cases/factories/make-change-avatar-use-case';
-import { makeResetPasswordTokenUseCase } from '@/use-cases/factories/make-reset-password-token-use-case';
+import { makeFetchGalleriesUseCase } from '@/use-cases/factories/make-fetch-galleries-use-case';
+import { makeGetGalleryUseCase } from '@/use-cases/factories/make-get-gallery-use-case';
 import { makeUploadPhotosUseCase } from '@/use-cases/factories/make-upload-photos-use-case';
 import { logger, pipelineAsync } from '@/utils';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
+
+import { PrismaGalleriesRepository } from '@/repositories/prisma/prisma-galleries-repository';
+
+import { IGallery } from '@/interfaces/IGallery';
 
 import { ResourceNotFoundError } from '@/errors/resource-not-found-error';
 
@@ -17,45 +23,45 @@ export async function uploadPhotos(
       id: z.string().uuid(),
     });
 
-    const uploadPhotosBodySchema = z.object({
-      socketId: z.object({
-        value: z.string(),
-      }),
+    const uploadPhotosQuerySchema = z.object({
+      socketId: z.string(),
     });
 
     const { id } = uploadPhotosParamsSchema.parse(request.params);
-    const requestBody = uploadPhotosBodySchema.parse(request.body);
-    const socketId = requestBody.socketId.value;
+    const { socketId } = uploadPhotosQuerySchema.parse(request.query);
 
     const headers = request.headers;
     const redirectTo = headers.origin;
 
-    const files = request.files();
+    const googleDriveService = new GoogleDriveService();
+    const googleDriveClient = await googleDriveService.getDriveClient();
 
-    const uploadPhotosUseCase = makeUploadPhotosUseCase();
+    const getGalleryUseCase = makeGetGalleryUseCase();
 
-    const uploadHandler = new UploadHandler(request.socket, socketId);
+    const { gallery } = await getGalleryUseCase.execute({
+      id,
+    });
 
-    const onFinish = (reply: FastifyReply, redirectTo: string) => () => {
-      return reply
-        .header('Connection', 'close')
-        .header('Location', `${redirectTo}?msg=Files uploaded with success!`)
-        .status(303)
-        .send();
-    };
+    const photosData = gallery.photos_data as IGallery.PhotosData;
 
-    const busboyInstance = uploadHandler.registerEvents(
-      headers,
-      onFinish(reply, redirectTo + '/galleries/' + id)
+    const galleriesRepository = new PrismaGalleriesRepository();
+
+    const uploadHandler = new UploadHandler(
+      app.io,
+      socketId,
+      googleDriveClient,
+      photosData.folderId,
+      gallery.id,
+      galleriesRepository
     );
 
-    // const responseData = await uploadPhotosUseCase.execute({
-    //   galleryId: id,
-    //   photos: files,
-    //   socketId,
-    // });
+    const onFinish = () => () => {
+      logger.info('On FINISH');
+      app.io.to(socketId).emit('upload-finished');
+    };
 
-    await pipelineAsync(request.files(), busboyInstance);
+    const busboyInstance = uploadHandler.registerEvents(headers, onFinish());
+    await pipelineAsync(request.raw, busboyInstance);
 
     logger.info('Request finished with success!');
 

@@ -39,6 +39,7 @@ export namespace IGallery {
       title?: string;
       slug?: string;
       photosCount?: string;
+      photos_data?: PhotosData;
     };
   }
 }

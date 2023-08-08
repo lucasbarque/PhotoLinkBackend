@@ -1,6 +1,8 @@
-import { IGoogleDriveService } from '@/interfaces/IGoogleDriveService';
+import { env } from '@/env';
 import { Auth, drive_v3, google } from 'googleapis';
 import path from 'node:path';
+
+import { IGoogleDriveService } from '@/interfaces/IGoogleDriveService';
 
 export default class GoogleDriveService implements IGoogleDriveService {
   private authPromise: Promise<Auth.JWT> | null = null;
@@ -29,5 +31,23 @@ export default class GoogleDriveService implements IGoogleDriveService {
       version: 'v3',
       auth,
     });
+  }
+
+  public async createFolder(folderName: string, client: any): Promise<string> {
+    const fileMetadata = {
+      name: folderName,
+      parents: [env.GOOGLE_GALLERIES_FOLDER],
+      mimeType: 'application/vnd.google-apps.folder',
+    };
+
+    try {
+      const file = await client.files.create({
+        resource: fileMetadata,
+        fields: 'id',
+      });
+      return file.data.id;
+    } catch (err) {
+      throw err;
+    }
   }
 }

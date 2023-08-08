@@ -1,9 +1,13 @@
+import GoogleDriveService from '@/infra/services/GoogleDrive';
+import Slugify from '@/infra/utils/Slugify';
+
 import { GalleriesRepository } from '@/repositories/galleries-repository';
 import { UsersRepository } from '@/repositories/users-repository';
+
 import { IGallery } from '@/interfaces/IGallery';
-import { ResourceNotFoundError } from '@/errors/resource-not-found-error';
+
 import { ResourceAlreadyExistsError } from '@/errors/resource-already-exists-error';
-import Slugify from '@/infra/utils/Slugify';
+import { ResourceNotFoundError } from '@/errors/resource-not-found-error';
 
 type CreateGalleryUseCaseRequest = Omit<IGallery.DTOs.Create, 'slug'>;
 
@@ -34,6 +38,20 @@ export class CreateGalleryUseCase {
       slug,
     });
 
-    return { gallery };
+    const googleDriveService = new GoogleDriveService();
+    const googleDriveClient = await googleDriveService.getDriveClient();
+
+    const galleryFolderGoogleDrive = await googleDriveService.createFolder(
+      gallery.id,
+      googleDriveClient
+    );
+
+    const galleryUpdated = await this.galleriesRepository.update(gallery.id, {
+      photos_data: {
+        folderId: galleryFolderGoogleDrive,
+      },
+    });
+
+    return { gallery: galleryUpdated };
   }
 }

@@ -5,67 +5,38 @@ import sharp from 'sharp';
 
 import { GalleriesRepository } from '@/repositories/galleries-repository';
 
+import { IGallery } from '@/interfaces/IGallery';
+
 import { ResourceNotFoundError } from '@/errors/resource-not-found-error';
 
 interface UploadPhotosUseCaseUseCaseRequest {
   galleryId: string;
-  socketId: string;
-  photos: any;
+  photo: {
+    filename: string;
+  };
 }
 
 export class UploadPhotosUseCase {
   constructor(private galleriesRepository: GalleriesRepository) {}
 
-  private async uploadFile(googleDriveClient: any, file: any) {
-    const filename = randomUUID();
-
-    const fileMetadata = {
-      name: filename,
-      parents: [env.GOOGLE_GALLERIES_FOLDER],
-    };
-
-    const arquivo = await sharp(await file.toBuffer());
-
-    const media = {
-      mimeType: file.mimetype,
-      body: arquivo,
-    };
-
-    const response = await googleDriveClient.files.create({
-      // @ts-ignore
-      resource: fileMetadata,
-      media,
-      field: 'id',
-    });
-
-    console.log(response);
-  }
-
-  async execute({
-    galleryId,
-    photos,
-    socketId,
-  }: UploadPhotosUseCaseUseCaseRequest) {
+  async execute({ galleryId, folderId }: UploadPhotosUseCaseUseCaseRequest) {
     const gallery = await this.galleriesRepository.findById(galleryId);
 
     if (!gallery) {
       throw new ResourceNotFoundError();
     }
 
-    // try {
-    //   const googleDriveService = new GoogleDriveService();
-    //   const googleDriveClient = await googleDriveService.getDriveClient();
+    const photosData = (gallery.photos_data as IGallery.PhotosData) ?? null;
 
-    //   const uploadPromises: Promise<void>[] = [];
+    if (photosData?.folderId) {
+      const galleryUpdated = await this.galleriesRepository.update(galleryId, {
+        // @ts-ignore
+        photos_data: {
+          folderId,
+        },
+      });
+    }
 
-    //   for await (const file of photos) {
-    //     const uploadPromise = this.uploadFile(googleDriveClient, file);
-    //     uploadPromises.push(uploadPromise);
-    //   }
-    //   await Promise.all(uploadPromises);
-    // } catch (error) {
-    //   console.log(error);
-    // }
     return { gallery: null };
   }
 }
